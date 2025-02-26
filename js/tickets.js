@@ -22,17 +22,18 @@ function loadTickets() {
       // Update ticket count
       $("#ticketCount").text(response.total_records);
 
-      // Disable resolved tickets AFTER fetching data, checks each row and disables editing
+      // Ensure "Assigned To" remains editable unless "Resolved"
       $(".status").each(function () {
-        let row = $(this).closest("tr"); // Get the table row of this status dropdown
-        let ticketNo = row.find(".ticket_no").text(); // Find ticket number in the row
+        let row = $(this).closest("tr");
+        let ticketNo = row.find(".ticket_no").text();
+        let status = $(this).val();
 
-        if (
-          $(this).val() === "Resolved" && //If status is "Resolved and has a ticket no"
-          !newResolvedTickets.includes(ticketNo)
-        ) {
-          $(this).prop("disabled", true); // Disable status dropdown
-          row.find(".assigned_to").prop("disabled", true); // Disable assigned_to field
+        if (status === "Resolved") {
+          $(this).prop("disabled", true);
+          row.find(".assigned_to").prop("disabled", true); // Disable only if Resolved
+        } else {
+          $(this).prop("disabled", false);
+          row.find(".assigned_to").prop("disabled", false); // Ensure it's editable for non-Resolved tickets
         }
       });
     },
@@ -93,12 +94,15 @@ $(document).ready(function () {
     let row = $(this).closest("tr");
     let ticketNo = row.find(".ticket_no").text();
     let status = row.find(".status").val();
-    let assignedTo = row.find(".assigned_to").val();
+    let assignedTo = row.find(".assigned_to").val() || "Unassigned"; // Ensure a default value
     let dateResolvedCell = row.find(".date_resolved");
 
     // Get original values from `data-original`
-    let originalStatus = row.find(".status").attr("data-original");
-    let originalAssigned = row.find(".assigned_to").attr("data-original");
+    let originalStatus = row.find(".status").attr("data-original") || "";
+    let originalAssigned = row.find(".assigned_to").attr("data-original") || "Unassigned";
+
+    console.log(`Ticket: ${ticketNo}, Status: ${status}, Assigned To: ${assignedTo}`);
+    console.log(`Original Status: ${originalStatus}, Original Assigned: ${originalAssigned}`);
 
     if (status === "Resolved") {
       // Show timestamp if changed to "Resolved"
@@ -114,9 +118,7 @@ $(document).ready(function () {
         hour12: false,
       }).format(now);
 
-      let parts = malaysiaTime.match(
-        /(\d{2})\/(\d{2})\/(\d{4}), (\d{2}):(\d{2}):(\d{2})/
-      );
+      let parts = malaysiaTime.match(/(\d{2})\/(\d{2})\/(\d{4}), (\d{2}):(\d{2}):(\d{2})/);
       if (parts) {
         let formattedTime = `${parts[3]}-${parts[2]}-${parts[1]} ${parts[4]}:${parts[5]}:${parts[6]}`;
         dateResolvedCell.text(formattedTime);
@@ -125,25 +127,32 @@ $(document).ready(function () {
       if (!newResolvedTickets.includes(ticketNo)) {
         newResolvedTickets.push(ticketNo);
       }
+
+      // Lock fields only if status is Resolved
+      row.find(".assigned_to").prop("disabled", true);
+      row.find(".status").prop("disabled", true);
     } else {
+      // Ensure "Assigned To" remains editable
+      row.find(".assigned_to").prop("disabled", false);
+      row.find(".status").prop("disabled", false);
+      
       // Clear timestamp if changed back to "Ongoing"
       dateResolvedCell.text("-");
-      newResolvedTickets = newResolvedTickets.filter(
-        (ticket) => ticket !== ticketNo
-      );
+      newResolvedTickets = newResolvedTickets.filter(ticket => ticket !== ticketNo);
     }
 
     // ✅ Only save updates if they are different from the original values
     if (status !== originalStatus || assignedTo !== originalAssigned) {
-      updatedTickets = updatedTickets.filter((t) => t.ticket_no !== ticketNo);
+      updatedTickets = updatedTickets.filter(t => t.ticket_no !== ticketNo);
       updatedTickets.push({
         ticket_no: ticketNo,
-        status,
-        assigned_to: assignedTo,
+        status: status,
+        assigned_to: assignedTo
       });
+      console.log("Updated tickets:", updatedTickets);
     } else {
       // ✅ Remove from updates if no real change
-      updatedTickets = updatedTickets.filter((t) => t.ticket_no !== ticketNo);
+      updatedTickets = updatedTickets.filter(t => t.ticket_no !== ticketNo);
     }
   });
 
@@ -153,7 +162,7 @@ $(document).ready(function () {
     $("#refreshModal").modal("show");
     setTimeout(function () {
       $("#refreshModal").modal("hide");
-    }, 1000); // Modal auto-closes after 1 seconds
+    }, 1000); // Modal auto-closes after 1 second
   });
 
   //Apply changes button
@@ -172,7 +181,7 @@ $(document).ready(function () {
       }),
       success: function (response) {
         let result = JSON.parse(response);
-        //Shows the success confirmation box if successfuly
+        //Shows the success confirmation box if successful
         if (result.success) {
           $("#successModal .modal-body").text("Changes applied successfully!");
           $("#successModal").modal("show");

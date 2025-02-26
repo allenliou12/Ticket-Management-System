@@ -1,27 +1,30 @@
 <?php
 include 'config/db.php';
 
-//Display and PHP errors if something is wrong
+// Display and log PHP errors if something is wrong
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
-//Checks if its a POST request, only running script when a POST request is made
+// Ensure the request method is POST
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $data = json_decode(file_get_contents("php://input"), true); //Reads the raw JSON msg send from ticket.js
+    $data = json_decode(file_get_contents("php://input"), true);
 
-    if (!empty($data['tickets'])) { //Ensure that there are actual tickets to update
+    if (!empty($data['tickets'])) { // Ensure there are tickets to update
         try {
-            $pdo->beginTransaction(); //Starts the DB transaction
-            $stmt = $pdo->prepare("UPDATE tickets SET status = :status, assigned_to = :assigned_to, date_resolved = :date_resolved WHERE ticket_no = :ticket_no"); //prepare the statement // Update tickets based on specific fields
+            $pdo->beginTransaction();
 
-            //Loops through each ticket and update the database
+            $stmt = $pdo->prepare("UPDATE tickets 
+                SET status = :status, 
+                    assigned_to = CASE WHEN :assigned_to IS NOT NULL AND :assigned_to != '' THEN :assigned_to ELSE assigned_to END, 
+                    date_resolved = :date_resolved 
+                WHERE ticket_no = :ticket_no");
+
             foreach ($data['tickets'] as $ticket) {
-                $dateResolved = ($ticket['status'] === 'Resolved') ? date("Y-m-d H:i:s") : null; //If resolved, set date resolved to current timestamp, NULL if not
+                $dateResolved = ($ticket['status'] === 'Resolved') ? date("Y-m-d H:i:s") : null;
 
-                //Execute the query
                 $stmt->execute([
                     ':status' => $ticket['status'],
-                    ':assigned_to' => $ticket['assigned_to'],
+                    ':assigned_to' => isset($ticket['assigned_to']) ? $ticket['assigned_to'] : null,
                     ':date_resolved' => $dateResolved,
                     ':ticket_no' => $ticket['ticket_no']
                 ]);
@@ -29,15 +32,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             $pdo->commit();
             echo json_encode(["success" => true]);
-        }
-        //Handles error if something goes wrong and rollback changes
-        catch (Exception $e) {
+        } catch (Exception $e) {
             $pdo->rollBack();
             echo json_encode(["success" => false, "error" => $e->getMessage()]);
         }
-    }
-    //Handles cases where no data is received
-    else {
+    } else {
         echo json_encode(["success" => false, "error" => "No data received"]);
     }
 }
