@@ -3,13 +3,13 @@ include 'config/db.php';
 
 date_default_timezone_set('Asia/Kuala_Lumpur');
 
-$limit = 10;
+$limit = 15;
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 $offset = ($page - 1) * $limit;
 $search = isset($_GET['search']) ? trim($_GET['search']) : '';
 
 // Predefined list of assignees
-$assignees = ["Allen", "Guo Xin", "Zhi Hao"];
+$assignees = ["A", "B", "C"];
 
 $query = "SELECT ticket_no, contact_details, issue_category, description, status, date_created, date_resolved, assigned_to FROM tickets";
 $params = [];
