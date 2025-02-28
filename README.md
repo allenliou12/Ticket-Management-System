@@ -2,6 +2,17 @@
 
 A real-time ticket management system built with PHP, MySQL, and Server-Sent Events (SSE) that enables dynamic ticket tracking and updates without page refreshes.
 
+## Disclaimer
+
+This project was created during my employment. It is shared here as a portfolio piece and for educational purposes only. The code represents a generic implementation of a ticketing system with no company-specific business logic or proprietary information.
+
+Please note:
+
+- This code is provided "as-is" without any warranties
+- This is not an officially supported product
+- All sensitive information and credentials have been removed
+- Any company-specific implementations have been generalized
+
 ## Features
 
 - **Real-Time Updates**: Automatic table updates using Server-Sent Events (SSE)
