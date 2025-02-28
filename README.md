@@ -4,14 +4,17 @@ A real-time ticket management system built with PHP, MySQL, and Server-Sent Even
 
 ## Disclaimer
 
-This project was created during my employment. It is shared here as a portfolio piece and for educational purposes only. The code represents a generic implementation of a ticketing system with no company-specific business logic or proprietary information.
+This project is a portfolio piece demonstrating my software development capabilities. Please note:
 
-Please note:
-
-- This code is provided "as-is" without any warranties
+- This is an educational project and should be used responsibly
+- The code is provided "as-is" without any warranties or guarantees
 - This is not an officially supported product
-- All sensitive information and credentials have been removed
-- Any company-specific implementations have been generalized
+- All sensitive information, credentials, and company-specific implementations have been removed
+- This is a generic implementation with no proprietary business logic
+- The project should be used for learning purposes only
+- Always obtain proper authorization before deploying in a production environment
+- The developer is not responsible for any misuse of this code
+- This implementation represents common ticketing system patterns and is intended for educational purposes only
 
 ## Features
 
