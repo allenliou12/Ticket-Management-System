@@ -49,7 +49,7 @@ Please note:
 ### 1. Clone the Repository
 
 ```sh
-git clone https://github.com/allenliou12/Ticketing-System
+git clone https://github.com/allenliou12/Ticket-Management-System
 cd ticket-management-system
 ```
 
