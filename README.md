@@ -26,12 +26,19 @@ A real-time ticket management system built with PHP, MySQL, and Server-Sent Even
   - Bootstrap 5.3.0
   - Bootstrap Icons 1.11.1
 
+## Prerequisites
+
+- PHP 7.4 or higher
+- MySQL 5.7 or higher
+- Web server (Apache/Nginx)
+- Composer (optional)
+
 ## Installation
 
 ### 1. Clone the Repository
 
 ```sh
-git clone https://github.com/yourusername/ticket-management-system.git
+git clone https://github.com/allenliou12/Ticketing-System
 cd ticket-management-system
 ```
 
@@ -55,21 +62,56 @@ CREATE TABLE tickets (
 
 ### 3. Configuration
 
-1. Create `config/db.php` with your database credentials:
+1. Copy the example configuration file:
+
+```sh
+cp config/db.config.example.php config/db.config.php
+```
+
+2. Edit `config/db.config.php` with your database credentials:
 
 ```php
 <?php
-$pdo = new PDO(
-    "mysql:host=localhost;dbname=your_database",
-    "username",
-    "password",
-    [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
-);
+return [
+    'DB_HOST' => 'your_database_host',
+    'DB_NAME' => 'your_database_name',
+    'DB_USER' => 'your_database_username',
+    'DB_PASS' => 'your_database_password',
+];
 ```
 
-2. Ensure your PHP environment has:
-   - `max_execution_time` set appropriately for SSE
-   - Required PHP extensions: `pdo_mysql`
+3. Server Requirements:
+   - PHP extensions: `pdo_mysql`
+   - PHP configuration:
+     - `max_execution_time`: Set appropriately for SSE (recommended: 0)
+     - `output_buffering`: off
+     - `zlib.output_compression`: 0
+     - `implicit_flush`: 1
+
+### 4. Web Server Configuration
+
+#### Apache
+
+Ensure `.htaccess` allows SSE connections:
+
+```apache
+Header set Cache-Control "no-cache"
+Header set Connection "keep-alive"
+```
+
+#### Nginx
+
+Add to your server configuration:
+
+```nginx
+location / {
+    proxy_set_header Connection '';
+    proxy_http_version 1.1;
+    proxy_buffering off;
+    proxy_cache off;
+    chunked_transfer_encoding off;
+}
+```
 
 ## Usage
 
@@ -88,15 +130,25 @@ php -S localhost:8000
    - Navigate through paginated results
    - Apply changes in bulk
 
-## Development
+## Security Considerations
 
-The system consists of several key components:
+- Ensure proper access controls are implemented
+- Keep database credentials secure
+- Regularly update dependencies
+- Monitor server resources for SSE connections
+- Implement rate limiting if needed
 
-- `index.php`: Main interface
-- `fetch_tickets.php`: Handles ticket retrieval and search
-- `update_tickets.php`: Processes ticket updates
-- `realtime_updates.php`: Manages SSE connections
-- `js/tickets.js`: Client-side functionality
+## Troubleshooting
+
+Common issues and solutions:
+
+- If SSE updates aren't working, check server timeout settings
+- For database connection issues, verify credentials and network access
+- If changes aren't saving, check database permissions
+
+## License
+
+[MIT License](LICENSE)
 
 ## Author
 
