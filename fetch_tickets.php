@@ -25,7 +25,11 @@ if ($search) {
     $params[':search'] = "%$search%";
 }
 
-$query .= " ORDER BY ticket_no DESC LIMIT :limit OFFSET :offset";
+$query .= " ORDER BY 
+    CASE WHEN status = 'Ongoing' THEN 0 ELSE 1 END ASC,
+    CASE WHEN status = 'Ongoing' THEN date_created ELSE date_resolved END DESC
+    LIMIT :limit OFFSET :offset";
+
 
 $stmt = $pdo->prepare($query);
 foreach ($params as $key => $value) {
@@ -74,15 +78,14 @@ foreach ($tickets as $ticket) {
 
     $disabled = ($ticket['status'] === 'Resolved') ? 'disabled' : ''; // Only disable if resolved
 
-    $assignedDropdown = "<select class='form-select form-select-sm assigned_to' data-ticket='{$ticket['ticket_no']}' $disabled>";
+    $assignedDropdown = "<select class='form-select form-select-sm assigned_to' data-ticket='{$ticket['ticket_no']}' data-original='" . ($ticket['assigned_to'] ?: "Unassigned") . "' $disabled>";
     $assignedDropdown .= "<option value='Unassigned'" . (empty($ticket['assigned_to']) || $ticket['assigned_to'] === 'Unassigned' ? ' selected' : '') . ">Unassigned</option>";
-
     foreach ($assignees as $assignee) {
         $selected = ($ticket['assigned_to'] === $assignee) ? 'selected' : '';
         $assignedDropdown .= "<option value='{$assignee}' {$selected}>{$assignee}</option>";
     }
-
     $assignedDropdown .= "</select>";
+
 
     $output .= "<tr>
         <td class='ticket_no text-center'>{$ticket['ticket_no']}</td>
