@@ -132,6 +132,18 @@ $(document).ready(function () {
         (ticket) => ticket !== ticketNo
       );
     }
+    // ✅ Only save updates if they are different from the original values
+    if (status !== originalStatus || assignedTo !== originalAssigned) {
+      updatedTickets = updatedTickets.filter((t) => t.ticket_no !== ticketNo);
+      updatedTickets.push({
+        ticket_no: ticketNo,
+        status,
+        assigned_to: assignedTo,
+      });
+    } else {
+      // ✅ Remove from updates if no real change
+      updatedTickets = updatedTickets.filter((t) => t.ticket_no !== ticketNo);
+    }
   });
 
   //Refresh button

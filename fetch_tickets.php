@@ -3,7 +3,7 @@ include 'config/db.php';
 
 date_default_timezone_set('Asia/Kuala_Lumpur');
 
-$limit = 15;
+$limit = 10;
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 $offset = ($page - 1) * $limit;
 $search = isset($_GET['search']) ? trim($_GET['search']) : '';

@@ -23,7 +23,7 @@ date_default_timezone_set('Asia/Kuala_Lumpur'); ?>
         <!-- Search Input -->
         <div class="row">
             <div class="col-md-6 mx-auto d-flex">
-                <input type="text" id="search" class="form-control" placeholder="Search Contact, Ticket No, Description, Category, Status...">
+                <input type="text" id="search" class="form-control" placeholder="Search Contact, Name, Ticket No, Description, Category, Status...">
                 <button class="btn btn-secondary ms-2" id="refreshTable">
                     <i class="bi bi-arrow-clockwise"></i> Refresh
                 </button>
